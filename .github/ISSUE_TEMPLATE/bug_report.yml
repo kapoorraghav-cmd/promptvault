@@ -1,0 +1,65 @@
+name: Bug report
+description: Something isn't working as expected.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem.
+        **Please don't include private prompts, images or personal information.** Use a made-up example if needed.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+      placeholder: When I import my backup, the images don't appear…
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to Backup & restore
+        2. Choose a backup file
+        3. Click Import
+        4. Open the library
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Safari
+        - Edge
+        - Firefox
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and operating system
+      placeholder: e.g. MacBook Air, macOS 15 / iPhone 15, iOS 18 / Windows 11
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where are you using PromptVault?
+      options:
+        - The live site (GitHub Pages)
+        - Running locally (npm run dev / preview)
+        - Self-hosted copy
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or console errors
+      description: Optional. Screenshots help a lot, but make sure they don't show private work.
