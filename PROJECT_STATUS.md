@@ -14,13 +14,13 @@ _Last updated: 5 November 2026 · Version 1.0.0_
 | 6. Import/export | Full .zip backup, data-only .json, Markdown, single-item and per-collection export, validated import with preview and skip/replace/keep-both | Unit + E2E (including corrupted files) |
 | 7. OCR | Bundled Tesseract.js engine and English data served locally; editable result; save as new creation with the screenshot attached | E2E in Chromium and WebKit, with a check for zero external requests |
 | 8. Settings, privacy, onboarding | Theme, default view, sample data load/remove, storage usage and persistence, clear-all with typed confirmation, privacy and about sections, five-step tour | E2E |
-| 9. QA & responsive | 20 unit tests, 18 E2E scenarios across desktop Chromium/WebKit and phone-sized Chrome/Safari; no horizontal overflow on phones; production build with CSP | Passing locally |
+| 9. QA & responsive | 20 unit tests and 18 E2E scenarios (53 runs across desktop Chromium, Firefox and WebKit plus phone-sized Chrome and Safari); no horizontal overflow on phones; production build with CSP | Passing locally and in GitHub Actions |
+| 11. Publishing | Public repository, topics, GitHub Pages live demo, private vulnerability reporting, v1.0.0 release | Live site smoke-tested (sample library, OCR, zero external requests) |
 | 10. Docs & GitHub assets | README, LICENSE (MIT), CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, architecture guide, issue and PR templates, CI and Pages workflows, real screenshots, social preview | — |
 
 ## Outstanding
 
 - [ ] Upload `docs/social-preview.png` as the repository's social preview image (GitHub only allows this from the website: Settings → General → Social preview).
-- [ ] Confirm the Firefox E2E run passes in CI (Firefox couldn't be launched by the test runner on the development Mac).
 - [ ] Planned features listed in the README roadmap (offline/PWA install, bulk actions, more OCR languages, browser extension, optional sync).
 
 ## Known issues and limitations
@@ -31,6 +31,7 @@ _Last updated: 5 November 2026 · Version 1.0.0_
 - **OCR** is English-only in this release. Accuracy depends on image quality, and stylised fonts or handwriting may need manual correction.
 - **HEIC photos** (iPhone default) aren't supported by most browsers. Convert them to JPG or PNG first.
 - **Video files aren't stored**, by design. Only the link, duration and an optional thumbnail are saved.
+- **Firefox end-to-end tests run in GitHub Actions only.** The test copy of Firefox can't launch on the development Mac (macOS 27); the Linux CI run covers it.
 - **No offline install yet.** PromptVault isn't installable as an offline app (PWA) yet, so it needs a connection to load.
 
 ## How to make changes
