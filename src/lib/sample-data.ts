@@ -276,23 +276,25 @@ export async function loadSampleData(): Promise<void> {
     string,
     { data: ArrayBuffer; type: string; thumb: ArrayBuffer | null; thumbType: string | null; width: number | null; height: number | null }
   >()
-  for (const file of imageFiles) {
-    const blob = await fetchSampleImage(file)
-    let info: { thumb: Blob | null; width: number | null; height: number | null } = { thumb: null, width: null, height: null }
-    try {
-      info = await processImage(blob, blob.type)
-    } catch {
-      // Keep the original even if a preview can't be generated.
-    }
-    processed.set(file, {
-      data: await blob.arrayBuffer(),
-      type: blob.type,
-      thumb: info.thumb ? await info.thumb.arrayBuffer() : null,
-      thumbType: info.thumb?.type || null,
-      width: info.width,
-      height: info.height,
-    })
-  }
+  await Promise.all(
+    imageFiles.map(async (file) => {
+      const blob = await fetchSampleImage(file)
+      let info: { thumb: Blob | null; width: number | null; height: number | null } = { thumb: null, width: null, height: null }
+      try {
+        info = await processImage(blob, blob.type)
+      } catch {
+        // Keep the original even if a preview can't be generated.
+      }
+      processed.set(file, {
+        data: await blob.arrayBuffer(),
+        type: blob.type,
+        thumb: info.thumb ? await info.thumb.arrayBuffer() : null,
+        thumbType: info.thumb?.type || null,
+        width: info.width,
+        height: info.height,
+      })
+    }),
+  )
 
   const collectionIds = new Map<string, string>()
   const collections: Collection[] = SAMPLE_COLLECTIONS.map((c, i) => {

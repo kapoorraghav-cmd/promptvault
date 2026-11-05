@@ -19,7 +19,7 @@ import { deleteCreations, duplicateCreation, toggleFavourite } from '../../lib/r
 import type { Creation } from '../../lib/types'
 import { IconButton } from '../ui/button'
 import { ConfirmDialog } from '../ui/dialog'
-import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../ui/menu'
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger, useAfterMenuClose } from '../ui/menu'
 import { CollectionPickerDialog } from '../collections/collection-picker'
 
 export function useDuplicate() {
@@ -53,6 +53,7 @@ export function CreationMenu({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [picking, setPicking] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const { afterClose, onCloseAutoFocus } = useAfterMenuClose()
 
   return (
     <>
@@ -64,7 +65,7 @@ export function CreationMenu({
             </IconButton>
           )}
         </MenuTrigger>
-        <MenuContent align={align}>
+        <MenuContent align={align} onCloseAutoFocus={onCloseAutoFocus}>
           <MenuItem icon={<ExternalLink />} onSelect={() => navigate(`/c/${creation.id}`)}>
             Open
           </MenuItem>
@@ -87,7 +88,7 @@ export function CreationMenu({
           <MenuItem icon={<CopyPlus />} onSelect={() => duplicate(creation)}>
             Duplicate as variation
           </MenuItem>
-          <MenuItem icon={<FolderPlus />} onSelect={() => setPicking(true)}>
+          <MenuItem icon={<FolderPlus />} onSelect={afterClose(() => setPicking(true))}>
             Add to collection…
           </MenuItem>
           <MenuSeparator />
@@ -101,7 +102,7 @@ export function CreationMenu({
             Export with images (.zip)
           </MenuItem>
           <MenuSeparator />
-          <MenuItem icon={<Trash2 />} destructive onSelect={() => setConfirmDelete(true)}>
+          <MenuItem icon={<Trash2 />} destructive onSelect={afterClose(() => setConfirmDelete(true))}>
             Delete…
           </MenuItem>
         </MenuContent>

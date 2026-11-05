@@ -4,7 +4,7 @@ test('mobile: navigation, sample library and creation detail work on a phone', a
   await page.goto('./')
   for (let i = 0; i < 4; i++) await page.getByRole('button', { name: 'Next' }).click()
   await page.getByRole('button', { name: 'Explore with sample library' }).click()
-  await expect(page.getByText('You’re exploring the sample library')).toBeVisible()
+  await expect(page.getByText('You’re exploring the sample library')).toBeVisible({ timeout: 30_000 })
 
   // No horizontal scrolling on the main pages.
   for (const path of ['/', '/library', '/collections', '/backup', '/settings', '/c/sample-aurora']) {

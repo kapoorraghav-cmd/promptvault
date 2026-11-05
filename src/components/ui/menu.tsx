@@ -1,23 +1,47 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Check } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { cn } from '../../lib/utils'
 
 export const Menu = DropdownMenu.Root
 export const MenuTrigger = DropdownMenu.Trigger
 
+/**
+ * Opening a dialog straight from a menu item makes the closing menu and the
+ * opening dialog compete for focus. `afterClose(fn)` queues `fn` to run once
+ * the menu has fully closed; pass `onCloseAutoFocus` to the MenuContent.
+ */
+export function useAfterMenuClose() {
+  const pending = useRef<(() => void) | null>(null)
+  return {
+    afterClose: (fn: () => void) => () => {
+      pending.current = fn
+    },
+    onCloseAutoFocus: (event: Event) => {
+      const fn = pending.current
+      if (!fn) return
+      pending.current = null
+      event.preventDefault()
+      fn()
+    },
+  }
+}
+
 export function MenuContent({
   children,
   align = 'end',
   className,
+  onCloseAutoFocus,
 }: {
   children: ReactNode
   align?: 'start' | 'center' | 'end'
   className?: string
+  onCloseAutoFocus?: (event: Event) => void
 }) {
   return (
     <DropdownMenu.Portal>
       <DropdownMenu.Content
+        onCloseAutoFocus={onCloseAutoFocus}
         align={align}
         sideOffset={6}
         collisionPadding={8}

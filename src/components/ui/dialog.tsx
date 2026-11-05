@@ -44,7 +44,8 @@ export function DialogContent({
                 event.preventDefault()
                 // Don't steal focus if the user has already moved on (e.g. opened another menu).
                 const active = document.activeElement
-                if (!active || active === document.body) returnFocus.current?.focus()
+                const menuOpen = Boolean(document.querySelector('[role="menu"]'))
+                if (!menuOpen && (!active || active === document.body)) returnFocus.current?.focus()
               }
             : undefined
         }

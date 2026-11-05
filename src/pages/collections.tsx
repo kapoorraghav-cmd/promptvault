@@ -8,7 +8,7 @@ import { ActiveFilters, CreationsGrid, LibraryToolbar, useFilteredCreations, use
 import { AssetImage } from '../components/creations/media'
 import { Button, ButtonLink, IconButton } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/dialog'
-import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../components/ui/menu'
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger, useAfterMenuClose } from '../components/ui/menu'
 import { Badge, EmptyState, PageHeader } from '../components/ui/misc'
 import { downloadBackup, downloadMarkdown } from '../lib/export-actions'
 import { useCollections, useCreations } from '../lib/hooks'
@@ -22,6 +22,7 @@ function CollectionActions({ collection, items, onDeleted }: { collection: Colle
   const [deleting, setDeleting] = useState(false)
   const [managing, setManaging] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const { afterClose, onCloseAutoFocus } = useAfterMenuClose()
   return (
     <>
       <Menu modal={false}>
@@ -30,11 +31,11 @@ function CollectionActions({ collection, items, onDeleted }: { collection: Colle
             <MoreHorizontal />
           </IconButton>
         </MenuTrigger>
-        <MenuContent>
-          <MenuItem icon={<Pencil />} onSelect={() => setEditing(true)}>
+        <MenuContent onCloseAutoFocus={onCloseAutoFocus}>
+          <MenuItem icon={<Pencil />} onSelect={afterClose(() => setEditing(true))}>
             Rename or edit
           </MenuItem>
-          <MenuItem icon={<ListChecks />} onSelect={() => setManaging(true)}>
+          <MenuItem icon={<ListChecks />} onSelect={afterClose(() => setManaging(true))}>
             Add or remove items
           </MenuItem>
           <MenuSeparator />
@@ -45,7 +46,7 @@ function CollectionActions({ collection, items, onDeleted }: { collection: Colle
             Export prompts as Markdown
           </MenuItem>
           <MenuSeparator />
-          <MenuItem icon={<Trash2 />} destructive onSelect={() => setDeleting(true)}>
+          <MenuItem icon={<Trash2 />} destructive onSelect={afterClose(() => setDeleting(true))}>
             Delete collection…
           </MenuItem>
         </MenuContent>

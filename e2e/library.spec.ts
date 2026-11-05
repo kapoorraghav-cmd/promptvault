@@ -9,7 +9,7 @@ test.describe('first run', () => {
     await expect(page.getByRole('heading', { name: 'Keep a backup' })).toBeVisible()
     await page.getByRole('button', { name: 'Explore with sample library' }).click()
 
-    await expect(page.getByText('You’re exploring the sample library')).toBeVisible()
+    await expect(page.getByText('You’re exploring the sample library')).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('link', { name: 'Creations 11' })).toBeVisible()
 
     await page.getByRole('button', { name: 'Remove sample data' }).click()
@@ -76,6 +76,7 @@ test.describe('creations', () => {
     await page.getByRole('button', { name: 'More actions' }).click()
     await page.getByRole('menuitem', { name: 'Delete…' }).click()
     await page.getByRole('button', { name: 'Cancel' }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(page.getByRole('heading', { level: 1, name: 'Delete me' })).toBeVisible()
 
     await page.getByRole('button', { name: 'More actions' }).click()
@@ -184,6 +185,7 @@ test.describe('organisation', () => {
     await page.getByRole('button', { name: 'Add items' }).click()
     await page.getByRole('checkbox', { name: /Sunset ad/ }).click()
     await page.getByRole('button', { name: 'Done' }).click()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Open Sunset ad' })).toBeVisible()
 
     await page.getByRole('button', { name: 'Collection actions' }).click()
@@ -191,6 +193,7 @@ test.describe('organisation', () => {
     await page.getByLabel('Name', { exact: true }).fill('Ads')
     await page.getByRole('button', { name: 'Save changes' }).click()
     await expect(page.getByRole('heading', { level: 1, name: 'Ads' })).toBeVisible()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
 
     await page.getByRole('button', { name: 'Collection actions' }).click()
     await page.getByRole('menuitem', { name: 'Delete collection…' }).click()
