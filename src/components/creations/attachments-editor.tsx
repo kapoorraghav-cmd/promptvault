@@ -63,12 +63,14 @@ function AttachmentTile({
   onChange,
   onRemove,
   onMakeCover,
+  onBusyChange,
 }: {
   draft: AssetDraft
   isCover: boolean
   onChange: (next: AssetDraft) => void
   onRemove: () => void
   onMakeCover: () => void
+  onBusyChange?: (busy: boolean) => void
 }) {
   const replaceRef = useRef<HTMLInputElement>(null)
   const [replacing, setReplacing] = useState(false)
@@ -173,8 +175,11 @@ function AttachmentTile({
           e.target.value = ''
           if (!file) return
           setReplacing(true)
-          const [replacement] = await filesToDrafts([file], draft.role)
-          setReplacing(false)
+          onBusyChange?.(true)
+          const [replacement] = await filesToDrafts([file], draft.role).finally(() => {
+            setReplacing(false)
+            onBusyChange?.(false)
+          })
           if (replacement) {
             onChange({ ...replacement, key: draft.key, id: draft.id, alt: draft.alt, description: draft.description })
             toast.success('Image replaced')
@@ -191,16 +196,24 @@ export function AttachmentsEditor({
   coverKey,
   onCoverChange,
   defaultRole,
+  onBusyChange,
 }: {
   assets: AssetDraft[]
   onChange: (assets: AssetDraft[]) => void
   coverKey: string | null
   onCoverChange: (key: string | null) => void
   defaultRole: AssetRole
+  /** Reports when images are being read, so the form can wait before saving. */
+  onBusyChange?: (busy: boolean) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusyState] = useState(false)
+
+  function setBusy(next: boolean) {
+    setBusyState(next)
+    onBusyChange?.(next)
+  }
 
   async function addFiles(files: File[]) {
     if (!files.length) return
@@ -275,6 +288,7 @@ export function AttachmentsEditor({
                 if (coverKey === draft.key) onCoverChange(remaining[0]?.key ?? null)
               }}
               onMakeCover={() => onCoverChange(draft.key)}
+              onBusyChange={onBusyChange}
             />
           ))}
           <button

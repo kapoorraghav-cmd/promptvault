@@ -61,6 +61,8 @@ export function EditCreationPage() {
   const [durationText, setDurationText] = useState('')
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
+  /** Number of image batches still being read; saving waits until this is 0. */
+  const [processing, setProcessing] = useState(0)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [newCollectionOpen, setNewCollectionOpen] = useState(false)
@@ -118,9 +120,12 @@ export function EditCreationPage() {
     setDraft((d) => ({ ...d, prompt: pending.prompt }))
     setDirty(true)
     if (pending.screenshot) {
-      filesToDrafts([pending.screenshot], 'reference').then((drafts) => {
-        if (drafts.length) setAssets((a) => [...a, ...drafts.map((d) => ({ ...d, description: 'Screenshot the prompt was extracted from' }))])
-      })
+      setProcessing((n) => n + 1)
+      filesToDrafts([pending.screenshot], 'reference')
+        .then((drafts) => {
+          if (drafts.length) setAssets((a) => [...a, ...drafts.map((d) => ({ ...d, description: 'Screenshot the prompt was extracted from' }))])
+        })
+        .finally(() => setProcessing((n) => Math.max(0, n - 1)))
     }
   }, [isNew, takePendingPrompt])
 
@@ -178,7 +183,10 @@ export function EditCreationPage() {
     const files = Array.from(event.clipboardData.files).filter((f) => f.type.startsWith('image/'))
     if (!files.length) return
     event.preventDefault()
-    const drafts = await filesToDrafts(files, draft.contentType === 'video' ? 'thumbnail' : 'output')
+    setProcessing((n) => n + 1)
+    const drafts = await filesToDrafts(files, draft.contentType === 'video' ? 'thumbnail' : 'output').finally(() =>
+      setProcessing((n) => Math.max(0, n - 1)),
+    )
     if (drafts.length) {
       setAssets((a) => [...a, ...drafts])
       if (!coverKey) setCoverKey(drafts[0].key)
@@ -206,6 +214,10 @@ export function EditCreationPage() {
   }
 
   async function save() {
+    if (processing > 0 || saving) {
+      if (processing > 0) toast.message('Images are still being prepared — this only takes a moment.')
+      return
+    }
     const valid = validate()
     if (!valid) {
       toast.error('Please check the highlighted fields.')
@@ -387,6 +399,7 @@ export function EditCreationPage() {
                 setDirty(true)
               }}
               defaultRole={isVideo ? 'thumbnail' : draft.contentType === 'image' ? 'output' : 'reference'}
+              onBusyChange={(busy) => setProcessing((n) => Math.max(0, n + (busy ? 1 : -1)))}
             />
           </Section>
 
@@ -566,8 +579,8 @@ export function EditCreationPage() {
             <Button variant="ghost" onClick={() => navigate(id ? `/c/${id}` : '/library')}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={saving}>
-              {isNew ? 'Save creation' : 'Save changes'}
+            <Button type="submit" variant="primary" loading={saving || processing > 0}>
+              {processing > 0 ? 'Preparing images…' : isNew ? 'Save creation' : 'Save changes'}
             </Button>
           </div>
         </div>
